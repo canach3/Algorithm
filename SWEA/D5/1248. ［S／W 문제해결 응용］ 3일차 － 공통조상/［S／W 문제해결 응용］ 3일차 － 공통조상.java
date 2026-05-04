@@ -2,8 +2,8 @@ import java.io.*;
 import java.util.*;
 
 class Solution {
-    static int sum;
     static int[][] tree;
+    static int cnt;
 
     public static void main(String[] args) throws IOException {
 //        System.setIn(new FileInputStream("res/input.txt"));
@@ -28,51 +28,54 @@ class Solution {
                 int parent = Integer.parseInt(st.nextToken());
                 int child = Integer.parseInt(st.nextToken());
 
-                tree[child][2] = parent;
+                tree[child][0] = parent;
 
-                if (tree[parent][0] == 0) {
-                    tree[parent][0] = child;
-                } else {
-                    tree[parent][1] = child;
-                }
+                if (tree[parent][1] == 0) tree[parent][1] = child;
+                else tree[parent][2] = child;
             }
 
-            List<Integer> v1Parents = new ArrayList<>();
-            Set<Integer> v2Parents = new HashSet<>();
+            List<Integer> v1Ancestors = new ArrayList<>();
+            List<Integer> v2Ancestors = new ArrayList<>();
+            
+            // v1, v2 각각 조상찾기
+            int curr = v1;
+            while (curr != 0) {
+                v1Ancestors.add(curr);
+                curr = tree[curr][0];
+            }
+            Collections.reverse(v1Ancestors);
 
-            while (tree[v1][2] != 1) {
-                v1Parents.add(tree[v1][2]);
-                v1 = tree[v1][2];
+            curr = v2;
+            while (curr != 0) {
+                v2Ancestors.add(curr);
+                curr = tree[curr][0];
+            }
+            Collections.reverse(v2Ancestors);
+
+            // LCA 찾기
+            int LCA = 1;
+            int idx = 0;
+            while (idx < v1Ancestors.size() && idx < v2Ancestors.size() &&
+                    v1Ancestors.get(idx).equals(v2Ancestors.get(idx))) {
+                LCA = v1Ancestors.get(idx++);
             }
 
-            while (tree[v2][2] != 1) {
-                v2Parents.add(tree[v2][2]);
-                v2 = tree[v2][2];
-            }
+            // 서브트리 크기 구하기
+            cnt = 0;
+            DFS(LCA);
 
-            int commonParent = 1;
-            for (Integer v1Parent : v1Parents) {
-                if (v2Parents.contains(v1Parent)) {
-                    commonParent = v1Parent;
-                    break;
-                }
-            }
-
-            sum = 0;
-            DFS(commonParent);
-
-            sb.append(commonParent).append(" ").append(sum).append("\n");
+            sb.append(LCA).append(" ").append(cnt).append("\n");
         }
 
         System.out.print(sb);
     }
 
-    static void DFS(int v) {
-        if (v == 0) return;
+    static void DFS(int curr) {
+        cnt++;
 
-        sum++;
-
-        DFS(tree[v][0]);
-        DFS(tree[v][1]);
+        for (int i = 1; i <= 2; i++) {
+            int child = tree[curr][i];
+            if (child != 0) DFS(child);
+        }
     }
 }
