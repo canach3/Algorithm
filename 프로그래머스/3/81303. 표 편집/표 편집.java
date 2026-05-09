@@ -1,7 +1,10 @@
 import java.util.*;
 
 class Solution {
-    static Node curr;               // 현재 선택된 노드
+    static Node curr;   // 현재 선택된 노드
+    static Node head;   // 헤드 노드
+    static Node tail;   // 테일 노드
+
     static Node[] nodes;            // 노드들을 담은 배열
     static Stack<Node> removed;     // 삭제된 행을 담은 스택
 
@@ -18,8 +21,17 @@ class Solution {
             nodes[i] = new Node();
         }
 
+        // head <-> 첫 행 연결
+        head = new Node();
+        head.next = nodes[0];
+        nodes[0].prev = head;
         nodes[0].next = nodes[1];
+
+        // 마지막 행 <-> tail 연결
+        tail = new Node();
+        tail.prev = nodes[n -1];
         nodes[n - 1].prev = nodes[n - 2];
+        nodes[n - 1].next = tail;
 
         for (int i = 1; i < n - 1; i++) {
             nodes[i].prev = nodes[i - 1];
@@ -73,25 +85,12 @@ class Solution {
         curr.isRemoved = true;
         removed.push(curr);
 
-        /* 연결 끊기 */
+        // 연결끊기
+        curr.prev.next = curr.next;
+        curr.next.prev = curr.prev;
 
-        // 이전 행만 없는 경우
-        if (curr.prev == null) {
-            curr.next.prev = null;
-        }
-
-        // 다음 행만 없는 경우
-        else if (curr.next == null) {
-            curr.prev.next = null;
-        }
-
-        else {
-            curr.prev.next = curr.next;
-            curr.next.prev = curr.prev;
-        }
-
-        // 현재 선택된 행을 아래행으로 조정(없으면 윗 행)
-        if (curr.next == null) curr = curr.prev;
+        // 현재 선택된 행을 아래행으로 조정(마지막 행이면 윗 행 선택)
+        if (curr.next == tail) curr = curr.prev;
         else curr = curr.next;
     }
 
@@ -100,22 +99,9 @@ class Solution {
         Node node = removed.pop();
         node.isRemoved = false;
 
-        /* 연결하기 */
-
-        // 첫 번째 행인 경우
-        if (node.prev == null) {
-            node.next.prev = node;
-        }
-
-        // 마지막 행인 경우
-        else if (node.next == null) {
-            node.prev.next = node;
-        }
-
-        else {
-            node.prev.next = node;
-            node.next.prev = node;
-        }
+        // 연결하기
+        node.prev.next = node;
+        node.next.prev = node;
     }
 
     static class Node {
