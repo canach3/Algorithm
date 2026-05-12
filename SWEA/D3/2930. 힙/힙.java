@@ -1,13 +1,11 @@
 import java.io.*;
 import java.util.*;
 
-public class Solution {
-    static int[] maxHeap;
-    static int cnt;
+class Solution {
+    static int[] heap;
+    static int heapSize;
 
     public static void main(String[] args) throws IOException {
-//        System.setIn(new FileInputStream("res/input.txt"));
-
         StringBuilder sb = new StringBuilder();
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
@@ -16,18 +14,15 @@ public class Solution {
             sb.append("#").append(testCase).append(" ");
 
             int N = Integer.parseInt(br.readLine().trim());
-            maxHeap = new int[N + 1];
-            cnt = 0;
+            heap = new int[N + 1];
+            heapSize = 0;
 
             for (int i = 0; i < N; i++) {
-                StringTokenizer st = new StringTokenizer(br.readLine());
-
+                StringTokenizer st = new StringTokenizer(br.readLine().trim());
                 int command = Integer.parseInt(st.nextToken());
-                if (command == 1) {
-                    insert(Integer.parseInt(st.nextToken()));
-                } else {
-                    sb.append(remove()).append(" ");
-                }
+
+                if (command == 1) insert(Integer.parseInt(st.nextToken()));
+                else sb.append(delete()).append(" ");
             }
 
             sb.append("\n");
@@ -36,54 +31,41 @@ public class Solution {
         System.out.print(sb);
     }
 
-    static void insert(int value) {
-        int idx = ++cnt;
+    static void insert(int item) {
+        heap[++heapSize] = item;
+        int child = heapSize;
+        int parent = child / 2;
 
-        maxHeap[cnt] = value;
+        while (parent > 0 && heap[child] > heap[parent]) {
+            int tmp = heap[child];
+            heap[child] = heap[parent];
+            heap[parent] = tmp;
 
-        while (idx / 2 > 0) {
-            int child = maxHeap[idx];
-            int parent = maxHeap[idx / 2];
-
-            if (child <= parent) break;
-
-            maxHeap[idx] = parent;
-            maxHeap[idx / 2] = child;
-
-            idx /= 2;
+            child = parent;
+            parent = child / 2;
         }
     }
 
-    static int remove() {
-        if (cnt == 0) return -1;
+    static int delete() {
+        if (heapSize == 0) return -1;
 
-        int result = maxHeap[1];
-        maxHeap[1] = maxHeap[cnt];
-        cnt--;
+        int item = heap[1];
+        heap[1] = heap[heapSize--];
 
-        int parentIdx = 1;
-        while (parentIdx * 2 <= cnt) {
-            int parent = maxHeap[parentIdx];
+        int parent = 1;
+        int child = parent * 2;
+        if (child + 1 <= heapSize && heap[child + 1] > heap[child]) child++;
 
-            int child = 0;
-            int childIdx = 0;
+        while (child <= heapSize && heap[child] > heap[parent]) {
+            int tmp = heap[child];
+            heap[child] = heap[parent];
+            heap[parent] = tmp;
 
-            if (parentIdx * 2 == cnt || maxHeap[parentIdx * 2] >= maxHeap[parentIdx * 2 + 1]) {
-                child = maxHeap[parentIdx * 2];
-                childIdx = parentIdx * 2;
-            } else {
-                child = maxHeap[parentIdx * 2 + 1];
-                childIdx = parentIdx * 2 + 1;
-            }
-
-            if (parent >= child) break;
-
-            maxHeap[parentIdx] = child;
-            maxHeap[childIdx] = parent;
-
-            parentIdx = childIdx;
+            parent = child;
+            child = parent * 2;
+            if (child + 1 <= heapSize && heap[child + 1] > heap[child]) child++;
         }
 
-        return result;
+        return item;
     }
 }
