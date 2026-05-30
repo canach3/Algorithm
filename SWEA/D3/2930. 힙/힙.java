@@ -5,7 +5,7 @@ class Solution {
     static int[] heap;
     static int heapSize;
 
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws IOException {
         StringBuilder sb = new StringBuilder();
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
@@ -52,7 +52,7 @@ class Solution {
         int item = heap[1];
         heap[1] = heap[heapSize--];
 
-        int parent  = 1;
+        int parent = 1;
         int child = parent * 2;
         if (child + 1 <= heapSize && heap[child + 1] > heap[child]) child++;
 
