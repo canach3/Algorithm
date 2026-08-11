@@ -1,6 +1,6 @@
 class Solution {
     public int solution(int n) {
-        for (int i = 2; i <= n / 2 - 2; i++) {
+        for (int i = 2; i < Math.sqrt(n); i++) {
             if (n % i == 1) return i;
         }
         
